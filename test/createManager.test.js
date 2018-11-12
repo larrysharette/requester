@@ -1,24 +1,24 @@
 const createManager = require('../src/createManager')
 
 describe('createManager', () => {
-  beforeEach(function () {
+  beforeEach(function() {
     global.fetch = jest.fn().mockImplementation(() => {
       var p = new Promise((resolve, reject) => {
         resolve({
           ok: true,
           Id: '123',
-          json: function () {
+          json: function() {
             return {
               Id: '123'
             }
           }
-        });
-      });
+        })
+      })
 
-      return p;
-    });
-  });
-  
+      return p
+    })
+  })
+
   it('exposes public api', () => {
     const manager = createManager()
     const methods = Object.keys(manager)
@@ -78,7 +78,6 @@ describe('createManager', () => {
   })
 
   it('is a valid get request', async () => {
-
     const manager = createManager()
     const action = {
       type: 'external',
@@ -87,13 +86,28 @@ describe('createManager', () => {
     }
 
     manager.queueAction(action)
+    let queue = manager.getQueueStack()
+    expect(queue.length).toEqual(1)
+
+    await manager.executeQueue()
+    queue = manager.getQueueStack()
+
+    expect(queue.length).toEqual(0)
+  })
+
+  it('saves given local state', () => {
+    const manager = createManager()
+    const action = {
+      type: 'local',
+      endPoint: 'local://api-track.herokuapp.com/swagger/v1/swagger.json',
+      method: 'GET'
+    }
+
+    manager.queueAction(action)
     let data = manager.getQueueStack()
     expect(data.length).toEqual(1)
 
-    await manager.executeQueue()
-    data = manager.getQueueStack()
-
-    expect(data.length).toEqual(0)
+    
   })
 
   it('subscribe is a function', () => {

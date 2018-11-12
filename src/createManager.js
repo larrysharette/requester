@@ -18,13 +18,14 @@ function createManager(defaultConfig) {
     return queueStack
   }
 
-  const queueAction = (action) => {
+  const queueAction = action => {
     if (!action.type) throw new Error('action type is missing')
 
-    if(action.type === 'external') {
-      if(!action.endPoint) throw new Error('endPoint is missing')
-      if(!action.method) throw new Error('method is missing')
-      if(!isValidUrl(action.endPoint)) throw new Error('endPoint is not a valid url')
+    if (action.type === 'external') {
+      if (!action.endPoint) throw new Error('endPoint is missing')
+      if (!action.method) throw new Error('method is missing')
+      if (!isValidUrl(action.endPoint))
+        throw new Error('endPoint is not a valid url')
     }
 
     queueStack.push(action)
@@ -37,16 +38,18 @@ function createManager(defaultConfig) {
     for (let i = 0; i < queue.length; i++) {
       const q = queue[i]
       try {
-        const response = await fetch(q.endPoint, {
-          method: q.method,
-          credentials: q.credentials ? q.credentials : 'same-origin',
-          headers: {
-            ...q.headers
-          },
-          body: ['POST', 'PUT', 'DELETE', 'PATCH'].includes(q.method) ? JSON.stringify(q.body) : null
-        })
-        const json = await response.json()
-        q.data = json
+        switch(q.type) {
+          case 'external':
+            const json = await fetchExternal(q)
+            q.data = json
+            break
+          case 'local':
+            const localState = fetchInternal(q)
+            q.data = localState
+            break
+          default:
+            break
+        }
         reduce(state, q)
       } catch (error) {
         queueStack.push(q)
@@ -57,12 +60,30 @@ function createManager(defaultConfig) {
     isFetching = false
   }
 
+  const fetchExternal = async (q) => {
+    const response = await fetch(q.endPoint, {
+      method: q.method,
+      credentials: q.credentials ? q.credentials : 'same-origin',
+      headers: {
+        ...q.headers
+      },
+      body: ['POST', 'PUT', 'DELETE', 'PATCH'].includes(q.method)
+        ? JSON.stringify(q.body)
+        : null
+    })
+    return response.json()
+  }
+
+  const fetchInternal = (q) => {
+
+  }
+
   const reduce = (state, action) => {
     if (isPlainObject(action)) {
       return state
     }
 
-    const { endPoint, method, data } = action
+    const { endPoint, type, data } = action
 
     // const key = structureKeys.find(k => k.indexOf(endPoint) > -1)
     // if (!key) {
@@ -72,7 +93,7 @@ function createManager(defaultConfig) {
 
     return {
       ...state,
-      [method]: {
+      [type]: {
         [group]: {
           ...state[group],
           [endPoint]: data
@@ -81,15 +102,15 @@ function createManager(defaultConfig) {
     }
   }
 
-  const subscribe = (fn) => {
-    if(typeof fn !== 'function') throw new Error('The subscriber is not a function')
+  const subscribe = fn => {
+    if (typeof fn !== 'function')
+      throw new Error('The subscriber is not a function')
     subscribers.push(fn)
     return () => {
       const index = subscribers.indexOf(fn)
       subscribers.splice(index, 1)
     }
   }
-
 
   return {
     getData,
@@ -99,6 +120,5 @@ function createManager(defaultConfig) {
     subscribe
   }
 }
-
 
 module.exports = createManager
