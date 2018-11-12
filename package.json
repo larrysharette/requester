@@ -6,9 +6,11 @@
   "scripts": {
     "format": "prettier --write \"{src,test}/**/*.{js}\"",
     "format:check": "prettier --list-different \"{src,test}/**/*.{js}\"",
+    "lint": "eslint src test",
     "test": "jest",
     "test:watch": "npm test -- --watch",
     "test:cov": "npm test -- --coverage",
+    "prepare": "npm run format:check && npm run lint && npm test",
     "build": "rollup -c"
   },
   "repository": {
