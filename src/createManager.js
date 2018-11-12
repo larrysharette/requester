@@ -1,4 +1,4 @@
-module.exports = function createManager () {
+module.exports = function createManager() {
   function test1() {
     return 'hello'
   }

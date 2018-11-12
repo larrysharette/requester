@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "format": "prettier --write \"{src,test}/**/*.{js}\"",
-    "format:check": "prettier --list-different \"{src,test}/**/*.{js}\"",
+    "format": "prettier --write \"{src,test}/**/*{.js,.test.js}\"",
+    "format:check": "prettier --list-different '{src,test}/**/*{.js,.test.js}'",
     "lint": "eslint src test",
     "test": "jest",
     "test:watch": "npm test -- --watch",

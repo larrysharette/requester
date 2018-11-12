@@ -4,10 +4,10 @@ const createManager = require('../src/createManager')
 
 describe('createManager', () => {
   it('exposes public api', () => {
-    const manager = createManager();
-    const methods = Object.keys(manager);
+    const manager = createManager()
+    const methods = Object.keys(manager)
 
-    expect(methods.length).toBe(4);
+    expect(methods.length).toBe(4)
     expect(methods).toContain('getData')
     expect(methods).toContain('actionUrl')
     expect(methods).toContain('actionLocal')
@@ -15,13 +15,13 @@ describe('createManager', () => {
   })
 
   it('throws if URL is not valid', () => {
-    const manager = createManager();
+    const manager = createManager()
 
     expect(manager.actionUrl(1)).toThrow()
     expect(manager.actionUrl({})).toThrow()
     expect(manager.actionUrl([])).toThrow()
     expect(manager.actionUrl(() => {})).toThrow()
-    
+
     expect(manager.actionUrl('www.googlecom')).toThrow()
     expect(manager.actionUrl('httosj://www.googlecom')).toThrow()
 
@@ -29,7 +29,7 @@ describe('createManager', () => {
   })
 
   it('is a valid get request', async () => {
-    const manager = createManager();
+    const manager = createManager()
     await manager.actionUrl('www.google.com', 'GET')
     const data = manager.getData()
 
@@ -37,8 +37,7 @@ describe('createManager', () => {
       api: {
         crews: {
           getCrewBuilder: {
-            crewList: [],
-
+            crewList: []
           }
         }
       }
